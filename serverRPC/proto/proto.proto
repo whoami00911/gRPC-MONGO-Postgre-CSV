@@ -1,0 +1,39 @@
+syntax = "proto3";
+//import "google/protobuf/timestamp.proto"; //RFC3339
+package grpcPb;
+option go_package = "/pkg/parseCSV/grpcPb";
+
+message FetchRequest{
+   string Url = 1;
+}
+
+message FethResponce{
+    string Status = 1;
+}
+
+message ListRequest{
+    enum SortParameters{
+        id = 0;
+        name = 1;
+        price = 2;
+    }
+    SortParameters sort_field = 1; //название поля
+    int32 sort_asc = 2; // по убыванию или по возрастанию
+    int32 paging_offset = 3; //пропустить колличество записей
+    int32 paging_limit = 4; //лимит на колличество записей
+}
+
+message ListResponce{
+    repeated Product product = 1;
+}
+
+message Product{
+    int64 id = 1;
+    string name = 2;
+    string price = 3;
+}
+
+service SortService{
+    rpc Fetch(FetchRequest) returns (FethResponce){}
+    rpc List(ListRequest) returns (ListResponce){}
+}

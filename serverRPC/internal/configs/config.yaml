@@ -1,0 +1,2 @@
+grpc:
+  addr: localhost:8889
