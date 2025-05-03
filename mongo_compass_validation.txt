@@ -1,0 +1,33 @@
+{
+  $jsonSchema: {
+    required: [
+      '_id',
+      'id',
+      'name',
+      'price'
+    ],
+    additionalProperties: false,
+    properties: {
+      _id: {
+        bsonType: 'objectId'
+      },
+      id: {
+        bsonType: 'int'
+      },
+      name: {
+        bsonType: 'string'
+      },
+      price: {
+        bsonType: 'decimal',
+        minimum: 0
+      },
+      changes_count: {
+        bsonType: 'int',
+        minimum: 0
+      },
+      date_of_change: {
+        bsonType: 'date'
+      }
+    }
+  }
+}
