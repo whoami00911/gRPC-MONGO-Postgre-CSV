@@ -1,0 +1,4 @@
+server:
+  addr: localhost:8085
+db:
+  name: Products
