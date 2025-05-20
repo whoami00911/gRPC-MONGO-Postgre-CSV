@@ -44,6 +44,7 @@ func (p *ProductRepo) AddProduct(product domain.Product) error {
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		p.logger.Errorf("Can't get rows affected parameter: %s", err)
+		return err
 	}
 	if rowsAffected == 0 {
 		return domain.ErrProductExists
@@ -151,11 +152,13 @@ func (p *ProductRepo) GetAllProducts() ([]domain.Product, error) {
 			tx.Commit()
 		}
 	}()
+
 	query, err := tx.Query(`SELECT * FROM "` + p.dbname + `"`)
 	if err != nil {
 		p.logger.Errorf("Select all error: %s", err)
 		return []domain.Product{}, err
 	}
+
 	for query.Next() {
 		var product domain.Product
 		err = query.Scan(&product.Id, &product.Name, &product.Price)
@@ -168,7 +171,7 @@ func (p *ProductRepo) GetAllProducts() ([]domain.Product, error) {
 		}
 		products = append(products, product)
 	}
-	return products, err
+	return products, nil
 }
 
 func (p *ProductRepo) DeleteAllProducts() error {

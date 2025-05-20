@@ -5,6 +5,8 @@ import (
 	"webApp/internal/repository"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/mock.go
+
 type Product interface {
 	AddProduct(product domain.Product) error
 	GetProduct(id int) (domain.Product, error)

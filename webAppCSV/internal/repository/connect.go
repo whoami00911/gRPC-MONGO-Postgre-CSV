@@ -37,15 +37,19 @@ func ConfigInicialize() *Config {
 
 func ConnectPostgres() (*sql.DB, error) {
 	logger := logger.GetLogger()
+
 	if err := godotenv.Load(".env"); err != nil {
 		logger.Errorf("Can't load environment: %s", err)
 		log.Fatalf("Can't load environment: %s", err)
 	}
+
 	cfg := ConfigInicialize()
+
 	if err := envconfig.Process("db", &cfg.Db); err != nil {
 		logger.Errorf("Can't read environment: %s", err)
 		log.Fatalf("Can't read environment: %s", err)
 	}
+
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=%s", cfg.Db.Host, cfg.Db.Port, cfg.Db.Username, cfg.Db.Password, cfg.Db.Dbname, cfg.Db.Sslmode)
 	db, err := sql.Open("postgres", psqlInfo)
@@ -54,18 +58,21 @@ func ConnectPostgres() (*sql.DB, error) {
 		db, err = ConnectWithRetry(cfg)
 		return db, err
 	}
+
 	if err = db.Ping(); err != nil {
 		logger.Errorf("Ping pg database failed: %s", err)
 		db.Close()
 		db, err = ConnectWithRetry(cfg)
 		return db, err
 	}
+
 	return db, err
 }
 func ConnectWithRetry(cfg *Config) (*sql.DB, error) {
 	logger := logger.GetLogger()
 	var err error
 	var db *sql.DB
+
 	for i := 0; i < cfg.MaxRetries; i++ {
 		fmt.Printf("Попытка подключения к БД (%d/%d)...\n", i+1, cfg.MaxRetries)
 
@@ -90,6 +97,7 @@ func ConnectWithRetry(cfg *Config) (*sql.DB, error) {
 		fmt.Printf("Не удалось подключиться, ожидаем %v перед повторной попыткой...\n", cfg.Delay)
 		time.Sleep(cfg.Delay)
 	}
+
 	logger.Error(fmt.Sprintf("Retry connect to DB faild: %s", err))
 	fmt.Printf("не удалось подключиться к базе данных после %d попыток: %s", cfg.MaxRetries, err)
 	return nil, err
