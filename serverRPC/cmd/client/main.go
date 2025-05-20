@@ -21,6 +21,7 @@ func main() {
 
 	//Создать контекст подключения
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+
 	defer cancel()
 
 	// Инициализировать нового клиента
@@ -30,10 +31,13 @@ func main() {
 	resp, err := client.Fetch(ctx, &grpcPb.FetchRequest{
 		Url: "http://localhost:8085/products/",
 	})
+
 	if err != nil {
 		log.Fatalf("2) %s", err)
 	}
+
 	log.Printf("Fetch success: %s", resp.Status)
+
 	//отправить запрос на получение данных
 	list, err := client.List(ctx, &grpcPb.ListRequest{
 		SortField:    grpcPb.ListRequest_name,

@@ -162,10 +162,10 @@ func (x *FethResponce) GetStatus() string {
 
 type ListRequest struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
-	SortField     ListRequest_SortParameters `protobuf:"varint,1,opt,name=sort_field,json=sortField,proto3,enum=grpcPb.ListRequest_SortParameters" json:"sort_field,omitempty"`
-	SortAsc       int32                      `protobuf:"varint,2,opt,name=sort_asc,json=sortAsc,proto3" json:"sort_asc,omitempty"`
-	PagingOffset  int32                      `protobuf:"varint,3,opt,name=paging_offset,json=pagingOffset,proto3" json:"paging_offset,omitempty"`
-	PagingLimit   int32                      `protobuf:"varint,4,opt,name=paging_limit,json=pagingLimit,proto3" json:"paging_limit,omitempty"`
+	SortField     ListRequest_SortParameters `protobuf:"varint,1,opt,name=sort_field,json=sortField,proto3,enum=grpcPb.ListRequest_SortParameters" json:"sort_field,omitempty"` //название поля
+	SortAsc       int32                      `protobuf:"varint,2,opt,name=sort_asc,json=sortAsc,proto3" json:"sort_asc,omitempty"`                                              // по убыванию или по возрастанию
+	PagingOffset  int32                      `protobuf:"varint,3,opt,name=paging_offset,json=pagingOffset,proto3" json:"paging_offset,omitempty"`                               //пропустить колличество записей
+	PagingLimit   int32                      `protobuf:"varint,4,opt,name=paging_limit,json=pagingLimit,proto3" json:"paging_limit,omitempty"`                                  //лимит на колличество записей
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

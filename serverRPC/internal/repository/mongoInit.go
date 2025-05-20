@@ -51,7 +51,6 @@ func (m *MongoBackend) Insert(ctx context.Context, product []domain.Product) err
 	}
 	_, err = session.WithTransaction(ctx, transactionFunc)
 	if err != nil {
-		// Если транзакция откатилась, здесь будет ошибка
 		m.logger.Errorf("Транзакция не удалась: %s", err)
 		return err
 	}
@@ -88,16 +87,19 @@ func (m *MongoBackend) List(ctx context.Context, sort domain.SortParams) ([]doma
 func (m *MongoBackend) GetByName(ctx context.Context, product domain.Product) (domain.Product, error) {
 	var prod domain.Product
 	filter := bson.D{{Key: "name", Value: product.Name}}
+
 	result := m.db.Collection(viper.GetString("mongo.collection")).FindOne(ctx, filter)
 	if result.Err() == mongo.ErrNoDocuments {
 		m.logger.Errorf("GetByName err no documents: %s", result.Err())
 		return domain.Product{}, result.Err()
 	}
+
 	err := result.Decode(&prod)
 	if err != nil {
 		m.logger.Errorf("GetByName decode error: %s", err)
 		return prod, err
 	}
+
 	return prod, nil
 }
 

@@ -13,9 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/mock.go
 type Sorting interface {
-	Fetch(context.Context, []domain.Product) (domain.Status, error)
-	List(context.Context, *grpcPb.ListRequest) ([]domain.Product, error)
+	Fetch(ctx context.Context, product []domain.Product) (domain.Status, error)
+	List(ctx context.Context, product *grpcPb.ListRequest) ([]domain.Product, error)
 	GetByName(ctx context.Context, product domain.Product) (domain.Product, error)
 	UpdateProduct(ctx context.Context, product domain.Product) error
 }
@@ -53,7 +54,11 @@ func (s *Service) Fetch(ctx context.Context, req *grpcPb.FetchRequest) (domain.S
 		}, err
 	}
 
-	for _, v := range records {
+	for i, v := range records {
+		if len(v) < 3 {
+			s.logger.Warnf("skipping invalid record #%d: %v", i, v)
+			continue
+		}
 		Id, _ := strconv.Atoi(v[0])
 		price, err := primitive.ParseDecimal128(v[2])
 		if err != nil {

@@ -7,9 +7,10 @@ import (
 	"gRPC-server/pkg/parseCSV/grpcPb"
 )
 
+//go:generate mockgen -source=sortService.go -destination=mocks/mock.go
 type Sorting interface {
-	Fetch(context.Context, *grpcPb.FetchRequest) (domain.Status, error)
-	List(context.Context, *grpcPb.ListRequest) ([]domain.Product, error)
+	Fetch(ctx context.Context, req *grpcPb.FetchRequest) (domain.Status, error)
+	List(ctx context.Context, req *grpcPb.ListRequest) ([]domain.Product, error)
 }
 
 type SortServicegRPC struct {
