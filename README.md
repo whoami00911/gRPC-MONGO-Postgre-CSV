@@ -8,12 +8,11 @@
 
 ```bash
 cd webAppCSV
-go run cmd/main.go
+make start
 ```
 ```bash
 cd serverRPC
-go run cmd/main.go //запуск gRPC сервера
-go run cmd/client/main.go //запуск клиента
+make start
 ```
 ### Использование web application
 
