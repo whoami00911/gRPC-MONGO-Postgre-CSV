@@ -50,24 +50,30 @@ func ConnectPostgres() (*sql.DB, error) {
 		log.Fatalf("Can't read environment: %s", err)
 	}
 
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
-		"password=%s dbname=%s sslmode=%s", cfg.Db.Host, cfg.Db.Port, cfg.Db.Username, cfg.Db.Password, cfg.Db.Dbname, cfg.Db.Sslmode)
+	psqlInfo := "host=" + cfg.Db.Host + " port=" + cfg.Db.Port + " user=" + cfg.Db.Username +
+		" password=" + cfg.Db.Password + " dbname=" + cfg.Db.Dbname + " sslmode=" + cfg.Db.Sslmode
+
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		logger.Errorf("Can't open connection: %s", err)
 		db, err = ConnectWithRetry(cfg)
+
 		return db, err
 	}
 
 	if err = db.Ping(); err != nil {
 		logger.Errorf("Ping pg database failed: %s", err)
-		db.Close()
+		if closeErr := db.Close(); closeErr != nil {
+			logger.Errorf("Error closing database connection: %s", closeErr)
+		}
 		db, err = ConnectWithRetry(cfg)
+
 		return db, err
 	}
 
-	return db, err
+	return db, nil
 }
+
 func ConnectWithRetry(cfg *Config) (*sql.DB, error) {
 	logger := logger.GetLogger()
 	var err error
@@ -76,9 +82,9 @@ func ConnectWithRetry(cfg *Config) (*sql.DB, error) {
 	for i := 0; i < cfg.MaxRetries; i++ {
 		fmt.Printf("Попытка подключения к БД (%d/%d)...\n", i+1, cfg.MaxRetries)
 
-		// Пытаемся подключиться к БД
-		psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
-			"password=%s dbname=%s sslmode=%s", cfg.Db.Host, cfg.Db.Port, cfg.Db.Username, cfg.Db.Password, cfg.Db.Dbname, cfg.Db.Sslmode)
+		psqlInfo := "host=" + cfg.Db.Host + " port=" + cfg.Db.Port + " user=" + cfg.Db.Username +
+			" password=" + cfg.Db.Password + " dbname=" + cfg.Db.Dbname + " sslmode=" + cfg.Db.Sslmode
+
 		db, err = sql.Open("postgres", psqlInfo)
 		if err != nil {
 			fmt.Printf("Ошибка при открытии соединения: %v", err)
@@ -86,7 +92,8 @@ func ConnectWithRetry(cfg *Config) (*sql.DB, error) {
 		} else if err = db.Ping(); err == nil {
 			// Успешное подключение
 			fmt.Println("Успешное подключение к базе данных!")
-			return db, err
+
+			return db, nil
 		}
 
 		// Если подключение не удалось, закрываем его
@@ -100,5 +107,6 @@ func ConnectWithRetry(cfg *Config) (*sql.DB, error) {
 
 	logger.Error(fmt.Sprintf("Retry connect to DB faild: %s", err))
 	fmt.Printf("не удалось подключиться к базе данных после %d попыток: %s", cfg.MaxRetries, err)
+
 	return nil, err
 }

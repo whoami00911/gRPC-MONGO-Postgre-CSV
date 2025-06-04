@@ -27,14 +27,23 @@ func init() {
 
 func main() {
 	logger := logger.GetLogger()
-	db := repository.MongoInit(repository.NewMongoConnect(), logger)
-	repo := repository.NewRepo(db, logger)
+
+	db, err := repository.NewMongoConnect()
+
+	if err != nil {
+		logger.Error(err)
+		log.Fatal(err)
+	}
+
+	mongo := repository.MongoInit(db, logger)
+	repo := repository.NewRepo(mongo, logger)
 	service := service.NewService(repo, logger)
 	sortService := server.NewSortServerService(service, logger)
 	server := server.NewGrpcServer(sortService, logger)
 
 	go server.ListenAndServer()
 
+	fmt.Println("Server started on port 8889")
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

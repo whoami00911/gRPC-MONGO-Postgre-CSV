@@ -1,0 +1,42 @@
+services:
+  grpc-server:
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    command: ./gRPC-server
+    depends_on:
+      - mongo
+    networks:
+      - webappcsv_network1
+  
+  grpc-client:
+    build:
+      context: ./
+      dockerfile: Dockerfile.client
+    command: ./gRPC-client
+    depends_on:
+      - grpc-server
+    networks:
+      - webappcsv_network1
+  
+  mongo:
+    image: mongo:8.0.4
+    ports:
+      - "65000:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_DATABASE}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - webappcsv_network1
+
+volumes:
+  mongo_data:
+    driver: local
+    
+networks:
+  webappcsv_network1:
+    external: true
+    name: webappcsv_network1

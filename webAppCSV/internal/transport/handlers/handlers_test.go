@@ -288,7 +288,7 @@ func TestDeleteHandler(t *testing.T) {
 			/*Когда обработчик вызвал бы p.service.DeleteProduct(0),
 			gomock обнаружила бы неожиданный вызов метода DeleteProduct,
 			так как для него не было установлено EXPECT(). Тест бы упал с ошибкой. */
-			name: "Invalid ID Format", //подумать как сделать
+			name: "Invalid ID Format",
 			mockBehavior: func(m *mock_service.MockProduct, id int) {
 			},
 			expectedStatusCode:   400,

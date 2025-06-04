@@ -29,6 +29,7 @@ func (p *ProductForHandlers) GetAllHandler(c *gin.Context) {
 		c.JSON(404, gin.H{"Error": "No data found"})
 		return
 	}
+
 	if err != nil {
 		c.JSON(500, gin.H{"Internal server error": "error"})
 		return
@@ -38,17 +39,16 @@ func (p *ProductForHandlers) GetAllHandler(c *gin.Context) {
 	c.Writer.Header().Set("Content-Disposition", "attachment;filename=products.csv")
 
 	writer := csv.NewWriter(c.Writer)
-	// Устанавливаем разделитель ';'
 	writer.Comma = ';'
 	defer writer.Flush()
 
-	// Записываем строки данных
 	for _, product := range products {
 		record := []string{
 			strconv.Itoa(product.Id),
 			product.Name,
 			product.Price.String(),
 		}
+
 		if err := writer.Write(record); err != nil {
 			p.logger.Errorf("Error writing CSV record: %s", err)
 			c.JSON(500, gin.H{"error": "Internal Server Error"})
@@ -71,9 +71,11 @@ func (p *ProductForHandlers) CreateHandler(c *gin.Context) {
 			c.JSON(400, gin.H{"error": "Product Exists"})
 			return
 		}
+
 		c.JSON(500, gin.H{"error": "Internal Server Error"})
 		return
 	}
+
 	c.JSON(200, gin.H{"message": "Product created"})
 }
 
@@ -82,6 +84,7 @@ func (p *ProductForHandlers) DeleteAllHandler(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "Internal Server Error"})
 		return
 	}
+
 	c.JSON(200, gin.H{"message": "All products deleted"})
 }
 
@@ -99,6 +102,7 @@ func (p *ProductForHandlers) DeleteHandler(c *gin.Context) {
 			c.JSON(400, gin.H{"error": "Product Not Found"})
 			return
 		}
+
 		c.JSON(500, gin.H{"error": "Internal Server Error"})
 		return
 	}
@@ -128,8 +132,10 @@ func (p *ProductForHandlers) UpdateHandler(c *gin.Context) {
 			c.JSON(404, gin.H{"error": "Product Not Found"})
 			return
 		}
+
 		c.JSON(500, gin.H{"error": "Internal server error"})
 		return
 	}
+
 	c.JSON(200, gin.H{"message": "Product updated"})
 }

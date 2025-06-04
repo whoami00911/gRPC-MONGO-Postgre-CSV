@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"testing"
 	"webApp/domain"
@@ -133,7 +134,7 @@ func TestGetProduct(t *testing.T) {
 			mockBehavior: func(id int, product domain.Product) {
 				mock.ExpectBegin()
 				rows := sqlmock.NewRows([]string{"id", "name", "price"}).AddRow(product.Id, product.Name, product.Price.StringFixed(2))
-				mock.ExpectQuery(`SELECT \"id\", \"name\", \"price\" WHERE \"id\" = \$1`).WithArgs(id).WillReturnRows(rows)
+				mock.ExpectQuery(`SELECT \"id\", \"name\", \"price\" FROM \"assets\" WHERE \"id\" = \$1`).WithArgs(id).WillReturnRows(rows)
 				mock.ExpectCommit()
 			},
 			id: 1,
@@ -434,7 +435,7 @@ func TestGetAllProducts(t *testing.T) {
 		{
 			name: "Transaction error",
 			mockBehavior: func(products []domain.Product) {
-				mock.ExpectBegin().WillReturnError(err)
+				mock.ExpectBegin().WillReturnError(errors.New("transaction error"))
 				mock.ExpectRollback()
 			},
 			isErr: true,
@@ -443,7 +444,7 @@ func TestGetAllProducts(t *testing.T) {
 			name: "Query error",
 			mockBehavior: func(products []domain.Product) {
 				mock.ExpectBegin()
-				mock.ExpectQuery(`SELECT \* FROM \"assets\"`).WillReturnError(err)
+				mock.ExpectQuery(`SELECT \* FROM \"assets\"`).WillReturnError(errors.New("query error"))
 				mock.ExpectRollback()
 			},
 			isErr: true,

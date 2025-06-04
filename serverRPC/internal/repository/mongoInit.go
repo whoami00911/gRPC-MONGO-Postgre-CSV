@@ -86,7 +86,7 @@ func (m *MongoBackend) List(ctx context.Context, sort domain.SortParams) ([]doma
 
 func (m *MongoBackend) GetByName(ctx context.Context, product domain.Product) (domain.Product, error) {
 	var prod domain.Product
-	filter := bson.D{{Key: "name", Value: product.Name}}
+	filter := bson.D{{Key: "id", Value: product.Id}}
 
 	result := m.db.Collection(viper.GetString("mongo.collection")).FindOne(ctx, filter)
 	if result.Err() == mongo.ErrNoDocuments {
@@ -105,8 +105,9 @@ func (m *MongoBackend) GetByName(ctx context.Context, product domain.Product) (d
 
 func (m *MongoBackend) UpdateProduct(ctx context.Context, product domain.Product) error {
 	//var prod domain.Product
-	filter := bson.D{{Key: "name", Value: product.Name}}
+	filter := bson.D{{Key: "id", Value: product.Id}}
 	update := bson.D{{Key: "$set", Value: bson.D{{Key: "price", Value: product.Price}}},
+		{Key: "$set", Value: bson.D{{Key: "name", Value: product.Name}}},
 		{Key: "$inc", Value: bson.D{{Key: "changes_count", Value: 1}}},
 		{Key: "$set", Value: bson.D{{Key: "date_of_change", Value: time.Now()}}}}
 	_, err := m.db.Collection(viper.GetString("mongo.collection")).UpdateOne(ctx, filter, update)

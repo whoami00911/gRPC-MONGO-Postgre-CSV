@@ -20,6 +20,7 @@ func (s *Server) ListenAndServer(router *gin.Engine) error {
 		WriteTimeout: 3 * time.Second,
 		ReadTimeout:  3 * time.Second,
 	}
+
 	return s.httpServer.ListenAndServe()
 }
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -20,7 +19,6 @@ import (
 func init() {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
-	viper.ReadInConfig()
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Ошибка при чтении конфигурации: %v", err)
 	}
@@ -33,12 +31,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Can't connect postgres: %s", err)
 	}
-	fmt.Println(err)
+
 	repo := repository.NewRepository(db, logger)
 	service := service.NewService(repo)
 	handlers := handlers.NewProductForHandlers(logger, service)
 
 	srv := new(server.Server)
+
 	go func() {
 		if err := srv.ListenAndServer(handlers.InitRoutes()); err != nil {
 			logger.Errorf("http-server can't start: %s", err)
@@ -53,8 +52,9 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
+
 	if err := srv.ShutDown(ctx); err != nil {
-		logger.Error(fmt.Sprintf("Shutdown error: %s", err))
+		logger.Error("Shutdown error: " + err.Error())
 	}
 
 	log.Println("timeout of 1 seconds.")
